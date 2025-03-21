@@ -1,0 +1,109 @@
+/* style.css */
+:root {
+    --azul-escuro: #0a28e6;
+    --azul-claro: #4db5ea;
+    --roxo: #6e55f5;
+    --verde: #99de81;
+    --rosa: #e073e5;
+    --amarelo: #f5cd50;
+  }
+  
+  body {
+    font-family: 'Kode Mono', monospace;
+    margin: 0;
+    padding: 20px;
+    background: linear-gradient(45deg, var(--azul-claro), var(--verde));
+    min-height: 100vh;
+    position: relative;
+  }
+  
+  .navbar {
+    background: var(--azul-escuro);
+    padding: 1rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  
+  .logo {
+    height: 50px;
+    display: block;
+    margin: 0 auto;
+  }
+  
+  h1 {
+    color: var(--roxo);
+    text-align: center;
+    font-size: 2.5em;
+    margin: 20px 0;
+    text-shadow: 2px 2px var(--amarelo);
+  }
+  
+  form {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    margin: 20px auto;
+    max-width: 600px;
+  }
+  
+  input, select, button {
+    font-family: 'Kode Mono', monospace;
+    padding: 10px;
+    margin: 5px;
+    border: 2px solid var(--azul-escuro);
+    border-radius: 5px;
+  }
+  
+  button {
+    background: var(--amarelo);
+    color: var(--azul-escuro);
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  
+  button:hover {
+    transform: scale(1.05);
+    background: var(--rosa);
+  }
+  
+  table {
+    width: 100%;
+    margin: 20px 0;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+  
+  th {
+    background: var(--roxo);
+    color: white;
+    padding: 15px!important;
+    text-transform: uppercase;
+  }
+  
+  td {
+    padding: 12px;
+    color: var(--azul-escuro);
+  }
+  
+  tr:nth-child(even) {
+    background: var(--verde);
+  }
+  
+  footer {
+    background: var(--roxo);
+    color: white;
+    text-align: center;
+    padding: 1rem;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    left: 0;
+  }
+  
+  #tabelaPremios td:nth-child(2) {
+    color: var(--azul-escuro);
+    font-weight: bold;
+  }

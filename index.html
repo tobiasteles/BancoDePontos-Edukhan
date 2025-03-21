@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Banco de Pontos - Edukhan</title>
+    <link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Kode+Mono:wght@400..700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <nav>
+        <div class="navbar">
+            <img src="Logotipo Edukhan 2024/SEM FUNDO/LOGOTIPO/LOGOTIPO 1.png" alt="Logo Edukhan" class="logo" width="150px">
+        </div>
+    </nav>
+    <h1>Banco de Pontos - Edukhan</h1>
+    <p>O Banco de Pontos é uma plataforma que permite aos professores cadastrar alunos, registrar pontuações por atividades realizadas e
+        gerenciar a troca de pontos por prêmios. O sistema facilita a motivação dos estudantes, tornando o aprendizado
+        mais dinâmico e recompensador. Com uma interface simples e intuitiva, os professores podem acompanhar o saldo de
+        pontos dos alunos em tempo real e registrar as compras de prêmios de forma rápida e prática.</p>
+    <form id="cadastroAluno">
+        <input type="text" id="nome" placeholder="Nome do aluno" required>
+        <input type="number" id="pontos" placeholder="Pontos iniciais" required>
+        <button type="submit">Cadastrar</button>
+    </form>
+
+    <h2>Alunos</h2>
+    <table id="tabelaAlunos">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Pontos</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    
+
+    <h2>Compra de Prêmios</h2>
+    <form id="compraPremio">
+        <select id="alunoSelect" required></select>
+        <input type="number" id="valorPremio" placeholder="Valor do prêmio" required>
+        <button type="submit">Registrar Compra</button>
+    </form>
+
+    <h2>Lista de Prêmios</h2>
+    <table id="tabelaPremios">
+        <thead>
+            <tr>
+                <th>Prêmio</th>
+                <th>Valor em Pontos</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Fone</td>
+                <td>65.000</td>
+            </tr>
+            <tr>
+                <td>Corda</td>
+                <td>20.000</td>
+            </tr>
+            <tr>
+                <td>Relogio</td>
+                <td>100.000</td>
+            </tr>
+            <tr>
+                <td>Massa de Modelar</td>
+                <td>20.000</td>
+            </tr>
+            <tr>
+                <td>Futebol de Botão</td>
+                <td>10.000</td>
+            </tr>
+            <tr>
+                <td>Peças de Montar</td>
+                <td>15.000</td>
+            </tr>
+            <tr>
+                <td>Carrinho</td>
+                <td>5.000</td>
+            </tr>
+            <tr>
+                <td>Lingua de Sogra</td>
+                <td>5.000</td>
+            </tr>
+            <tr>
+                <td>Pega Vareta</td>
+                <td>10.000</td>
+            </tr>
+            <tr>
+                <td>Dente de Vampiro</td>
+                <td>5.000</td>
+            </tr>
+            <tr>
+                <td>Giz de Cera</td>
+                <td>5.000</td>
+            </tr>
+            <tr>
+                <td>Peão</td>
+                <td>5.000</td>
+            </tr>
+            <tr>
+                <td>Pula Pirata</td>
+                <td>75.000</td>
+            </tr>
+            <tr>
+                <td>Paçoca</td>
+                <td>2.500</td>
+            </tr>
+            <tr>
+                <td>Barra de chocolate</td>
+                <td>15.000</td>
+            </tr>
+            <tr>
+                <td>Biz</td>
+                <td>2.000</td>
+            </tr>
+            <tr>
+                <td>Fini</td>
+                <td>10.000</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <footer>
+        <p>© 2024 Edukhan - Sistema de Gestão de Pontos Escolares</p>
+    </footer>
+    <div style="height: 60px;"></div>
+    <script src="script.js"></script>
+</body>
+
+</html>
