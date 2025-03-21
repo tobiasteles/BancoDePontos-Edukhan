@@ -1,0 +1,12 @@
+specVersion: "v1beta"
+serviceId: "bancodepontos-edukhan"
+location: "us-central1"
+schema:
+  source: "./schema"
+  datasource:
+    postgresql:
+      database: "fdcdb"
+      cloudSql:
+        instanceId: "bancodepontos-edukhan-fdc"
+      # schemaValidation: "COMPATIBLE"
+connectorDirs: ["./connector"]

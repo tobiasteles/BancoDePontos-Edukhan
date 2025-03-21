@@ -1,4 +1,5 @@
-const alunos = JSON.parse(localStorage.getItem('alunos')) || [];
+let alunos = [];
+const alunosCollection = db.collection('alunos');
 
 // Elementos do DOM
 const formCadastro = document.getElementById('cadastroAluno');
@@ -21,54 +22,74 @@ const formEditar = document.getElementById('editarPontos');
 const alunoEditarSelect = document.getElementById('alunoEditar');
 const novoValorPontosInput = document.getElementById('novoValorPontos');
 
-// Função para salvar os dados no localStorage
-function salvarLocalStorage() {
-  localStorage.setItem('alunos', JSON.stringify(alunos));
+// Função para carregar e monitorar dados em tempo real
+function monitorarAlunos() {
+  alunosCollection.onSnapshot((snapshot) => {
+    alunos = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    atualizarLista();
+  });
 }
 
 // Evento de cadastro de alunos
-formCadastro.addEventListener('submit', (e) => {
+formCadastro.addEventListener('submit', async (e) => {
   e.preventDefault();
   const nome = document.getElementById('nome').value.trim();
   const pontos = parseInt(document.getElementById('pontos').value);
+
   if (alunos.some(aluno => aluno.nome.toLowerCase() === nome.toLowerCase())) {
     alert('Aluno já cadastrado!');
     return;
   }
-  alunos.push({ nome, pontos });
-  atualizarLista();
-  salvarLocalStorage();
-  formCadastro.reset();
+
+  try {
+    await alunosCollection.add({
+      nome,
+      pontos,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    formCadastro.reset();
+  } catch (error) {
+    alert('Erro ao cadastrar: ' + error.message);
+  }
 });
 
 // Evento de compra de prêmios
-formCompra.addEventListener('submit', (e) => {
+formCompra.addEventListener('submit', async (e) => {
   e.preventDefault();
-  const indice = alunoSelect.selectedIndex;
+  const aluno = alunos[alunoSelect.selectedIndex];
   const valor = parseInt(document.getElementById('valorPremio').value);
-  if (alunos[indice].pontos >= valor) {
-    alunos[indice].pontos -= valor;
-    atualizarLista();
-    salvarLocalStorage();
-    formCompra.reset();
+
+  if (aluno.pontos >= valor) {
+    try {
+      await alunosCollection.doc(aluno.id).update({
+        pontos: aluno.pontos - valor
+      });
+      formCompra.reset();
+    } catch (error) {
+      alert('Erro ao atualizar pontos: ' + error.message);
+    }
   } else {
     alert('Pontos insuficientes!');
   }
 });
 
-// Evento para atualizar os pontos (substituir valor)
-formEditar.addEventListener('submit', (e) => {
+// Evento para atualizar os pontos
+formEditar.addEventListener('submit', async (e) => {
   e.preventDefault();
-  const indice = alunoEditarSelect.selectedIndex;
+  const aluno = alunos[alunoEditarSelect.selectedIndex];
   const novoValor = parseInt(novoValorPontosInput.value);
-  if (isNaN(novoValor)) {
-    alert('Valor inválido!');
-    return;
+
+  try {
+    await alunosCollection.doc(aluno.id).update({
+      pontos: novoValor
+    });
+    formEditar.reset();
+  } catch (error) {
+    alert('Erro ao atualizar pontos: ' + error.message);
   }
-  alunos[indice].pontos = novoValor;
-  atualizarLista();
-  salvarLocalStorage();
-  formEditar.reset();
 });
 
 // Função para atualizar a tabela e os selects
@@ -91,4 +112,6 @@ function atualizarLista() {
 }
 
 // Carrega os dados ao iniciar
-window.addEventListener('load', atualizarLista);
+window.addEventListener('load', () => {
+  monitorarAlunos();
+});
