@@ -107,3 +107,44 @@
     color: var(--azul-escuro);
     font-weight: bold;
   }
+
+  /* Responsividade */
+@media (max-width: 768px) {
+    form {
+      margin: 10px auto;
+      max-width: 90%;
+      padding: 15px;
+    }
+    h1 {
+      font-size: 2em;
+      margin: 10px 0;
+    }
+    table, th, td {
+      font-size: 0.9em;
+    }
+    input, select, button {
+      padding: 8px;
+      margin: 4px;
+      font-size: 0.9em;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    body {
+      padding: 10px;
+    }
+    .navbar {
+      padding: 0.5rem;
+    }
+    h1 {
+      font-size: 1.8em;
+    }
+    input, select, button {
+      padding: 6px;
+      margin: 3px;
+    }
+    table {
+      font-size: 0.8em;
+    }
+  }
+  
