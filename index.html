@@ -12,12 +12,22 @@
 </head>
 
 <body>
+    
+   
     <nav>
         <div class="navbar">
             <img src="Logotipo Edukhan 2024/SEM FUNDO/LOGOTIPO/LOGOTIPO 1.png" alt="Logo Edukhan" class="logo"
                 width="150px">
         </div>
     </nav>
+    <div id="loginContainer" style="display: none; text-align: center; padding: 20px;">
+        <h2>Acesso Restrito</h2>
+        <input type="email" id="email" placeholder="Email do Professor" required>
+        <input type="password" id="password" placeholder="Senha" required>
+        <button onclick="login()">Entrar</button>
+        <p id="loginError" style="color: red;"></p>
+    </div>
+    <div id="content" style="display: none;">
     <h1>Banco de Pontos</h1>
     <p>O Banco de Pontos é uma plataforma que permite aos professores cadastrar alunos, registrar pontuações por
         atividades realizadas e
@@ -129,7 +139,7 @@
             </tr>
         </tbody>
     </table>
-
+</div>
     <footer>
         <p>© 2025 Edukhan - Sistema de Gestão de Pontos Escolares</p>
     </footer>
