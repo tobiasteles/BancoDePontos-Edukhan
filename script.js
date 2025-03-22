@@ -1,3 +1,7 @@
+firebase.auth().signInAnonymously()
+  .then(() => console.log("Usuário autenticado"))
+  .catch(error => console.error("Erro na autenticação: ", error));
+
 let alunos = [];
 const alunosCollection = db.collection('alunos');
 
