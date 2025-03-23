@@ -99,10 +99,12 @@ formCompra.addEventListener('submit', async (e) => {
 
     if (aluno.pontos >= valor) {
         try {
+            const saldoAnterior = aluno.pontos;
             await alunosCollection.doc(aluno.id).update({
-                pontos: aluno.pontos - valor
+                pontos: saldoAnterior - valor
             });
             formCompra.reset();
+            alert(`Compra registrada!\nSaldo anterior: ${saldoAnterior}\nValor descontado: ${valor}\nNovo saldo: ${saldoAnterior - valor}`);
         } catch (error) {
             alert('Erro ao atualizar pontos: ' + error.message);
         }
@@ -119,10 +121,12 @@ formEditar.addEventListener('submit', async (e) => {
     const pontosAdicionar = parseInt(novoValorPontosInput.value);
 
     try {
+        const saldoAnterior = aluno.pontos;
         await alunosCollection.doc(aluno.id).update({
             pontos: firebase.firestore.FieldValue.increment(pontosAdicionar)
         });
         formEditar.reset();
+        alert(`Pontos adicionados!\nSaldo anterior: ${saldoAnterior}\nValor adicionado: ${pontosAdicionar}\nNovo saldo: ${saldoAnterior + pontosAdicionar}`);
     } catch (error) {
         alert('Erro ao atualizar pontos: ' + error.message);
     }
