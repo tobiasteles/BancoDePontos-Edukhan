@@ -10,7 +10,7 @@ function login() {
             user = userCredential.user;
             document.getElementById('loginContainer').style.display = 'none';
             document.getElementById('content').style.display = 'block';
-            monitorarAlunos(); // Só carrega os dados após o login
+            monitorarAlunos(); // Carrega os dados após login
         })
         .catch((error) => {
             document.getElementById('loginError').textContent = "Erro: " + error.message;
@@ -29,7 +29,6 @@ function logout() {
     });
 }
 
-// Verifica se o usuário já está logado ao recarregar a página
 firebase.auth().onAuthStateChanged((user) => {
     if (user) {
         document.getElementById('loginContainer').style.display = 'none';
@@ -54,7 +53,7 @@ const formCompra = document.getElementById('compraPremio');
 const tabelaAlunosBody = document.querySelector('#tabelaAlunos tbody');
 const alunoSelect = document.getElementById('alunoSelect');
 
-// Insere o formulário de edição após a tabela de alunos
+// Formulário de edição (para o professor adicionar pontos)
 const formEdicao = `
   <h2>Gerenciar Pontos</h2>
   <form id="editarPontos">
@@ -80,7 +79,7 @@ function monitorarAlunos() {
     });
 }
 
-// Evento de cadastro de alunos
+// Cadastro de alunos
 formCadastro.addEventListener('submit', async (e) => {
     e.preventDefault();
     const nome = document.getElementById('nome').value.trim();
@@ -95,6 +94,7 @@ formCadastro.addEventListener('submit', async (e) => {
         await alunosCollection.add({
             nome,
             pontos,
+            pontosAnteriores: pontos, // Armazena os pontos iniciais
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
         formCadastro.reset();
@@ -103,58 +103,84 @@ formCadastro.addEventListener('submit', async (e) => {
     }
 });
 
-// Evento de compra de prêmios
+// Compra de prêmios (subtrai pontos)
 formCompra.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const aluno = alunos[alunoSelect.selectedIndex];
+    const alunoId = alunoSelect.value;
     const valor = parseInt(document.getElementById('valorPremio').value);
 
-    if (aluno.pontos >= valor) {
-        try {
-            const saldoAnterior = aluno.pontos;
-            await alunosCollection.doc(aluno.id).update({
-                pontos: saldoAnterior - valor
-            });
-            formCompra.reset();
-            alert(`Compra registrada!\nSaldo anterior: ${saldoAnterior}\nValor descontado: ${valor}\nNovo saldo: ${saldoAnterior - valor}`);
-        } catch (error) {
-            alert('Erro ao atualizar pontos: ' + error.message);
-        }
-    } else {
-        alert('Pontos insuficientes!');
-    }
-});
-
-// Evento para ADICIONAR pontos (em vez de substituir)
-formEditar.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const alunoId = alunoEditarSelect.value;
-    const aluno = alunos.find(a => a.id === alunoId);
-    const pontosAdicionar = parseInt(novoValorPontosInput.value);
-
     try {
-        const saldoAnterior = aluno.pontos;
-        await alunosCollection.doc(aluno.id).update({
-            pontos: firebase.firestore.FieldValue.increment(pontosAdicionar)
-        });
-        formEditar.reset();
-        alert(`Pontos adicionados!\nSaldo anterior: ${saldoAnterior}\nValor adicionado: ${pontosAdicionar}\nNovo saldo: ${saldoAnterior + pontosAdicionar}`);
+        const alunoRef = alunosCollection.doc(alunoId);
+        const alunoDoc = await alunoRef.get();
+        const dados = alunoDoc.data();
+
+        if (dados.pontos >= valor) {
+            await alunoRef.update({
+                pontosAnteriores: dados.pontos,
+                pontos: firebase.firestore.FieldValue.increment(-valor)
+            });
+            
+            alert(`Compra registrada!\nSaldo anterior: ${dados.pontos}\nValor descontado: ${valor}\nNovo saldo: ${dados.pontos - valor}`);
+            formCompra.reset();
+        } else {
+            alert('Pontos insuficientes!');
+        }
     } catch (error) {
         alert('Erro ao atualizar pontos: ' + error.message);
     }
 });
 
-// Função para atualizar a tabela e os selects
+// Adicionar pontos (para o professor)
+// Verifica se o valor informado é positivo para garantir adição
+formEditar.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const alunoId = alunoEditarSelect.value;
+    let pontosAdicionar = parseInt(novoValorPontosInput.value);
+
+    if (pontosAdicionar <= 0) {
+        alert("Informe um número positivo para adicionar pontos.");
+        return;
+    }
+
+    try {
+        const alunoRef = alunosCollection.doc(alunoId);
+        const alunoDoc = await alunoRef.get();
+        const dados = alunoDoc.data();
+        
+        await alunoRef.update({
+            pontosAnteriores: dados.pontos,
+            pontos: firebase.firestore.FieldValue.increment(pontosAdicionar)
+        });
+        
+        alert(`Pontos adicionados!\nSaldo anterior: ${dados.pontos}\nValor adicionado: ${pontosAdicionar}\nNovo saldo: ${dados.pontos + pontosAdicionar}`);
+        formEditar.reset();
+    } catch (error) {
+        alert('Erro ao atualizar pontos: ' + error.message);
+    }
+});
+
+// Função para remover aluno
+function removerAluno(alunoId) {
+    if (confirm("Deseja realmente remover este aluno?")) {
+        alunosCollection.doc(alunoId).delete()
+            .then(() => alert("Aluno removido com sucesso!"))
+            .catch(error => alert("Erro ao remover aluno: " + error.message));
+    }
+}
+
+// Atualizar a tabela e os selects
 function atualizarLista() {
     tabelaAlunosBody.innerHTML = alunos.map(aluno => `
         <tr>
             <td>${aluno.nome}</td>
+            <td>${aluno.pontosAnteriores || 0}</td>
             <td>${aluno.pontos}</td>
+            <td style="text-align: center;"><button onclick="removerAluno('${aluno.id}')">Remover</button></td>
         </tr>
     `).join('');
 
     const updateSelect = (selectElement) => {
-        selectElement.innerHTML = alunos.map((aluno, index) => `
+        selectElement.innerHTML = alunos.map(aluno => `
             <option value="${aluno.id}">${aluno.nome}</option>
         `).join('');
     };
