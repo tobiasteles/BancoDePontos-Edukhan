@@ -29,6 +29,20 @@
     margin: 0 auto;
   }
   
+  #logoutButton {
+    background: var(--rosa);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+#logoutButton:hover {
+    background: var(--roxo);
+}
+  
   h1 {
     color: var(--roxo);
     text-align: center;

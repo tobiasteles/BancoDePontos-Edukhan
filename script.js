@@ -17,6 +17,18 @@ function login() {
         });
 }
 
+// Função de logout
+function logout() {
+    firebase.auth().signOut().then(() => {
+        user = null;
+        alunos = []; // Limpa a lista de alunos
+        tabelaAlunosBody.innerHTML = ''; // Limpa a tabela
+        alert('Logout realizado com sucesso!');
+    }).catch((error) => {
+        alert('Erro ao fazer logout: ' + error.message);
+    });
+}
+
 // Verifica se o usuário já está logado ao recarregar a página
 firebase.auth().onAuthStateChanged((user) => {
     if (user) {
