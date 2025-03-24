@@ -169,3 +169,19 @@ window.addEventListener('load', () => {
         monitorarAlunos();
     }
 });
+
+// Forçar logout ao sair/recarregar a página
+window.addEventListener('beforeunload', (event) => {
+    if (user) {
+        firebase.auth().signOut();
+    }
+});
+
+// Configurar persistência de sessão como 'none'
+firebase.auth().setPersistence(firebase.auth.Auth.Persistence.NONE)
+    .then(() => {
+        console.log("Persistência de autenticação desativada");
+    })
+    .catch((error) => {
+        console.error("Erro ao configurar persistência:", error);
+    });
