@@ -53,6 +53,46 @@ const formCompra = document.getElementById('compraPremio');
 const tabelaAlunosBody = document.querySelector('#tabelaAlunos tbody');
 const alunoSelect = document.getElementById('alunoSelect');
 
+// Sincronização com Khan Academy
+const formSyncKhan = document.getElementById('syncKhanPoints');
+const alunoSyncKhanSelect = document.getElementById('alunoSyncKhan');
+const khanPointsInput = document.getElementById('khanPoints');
+
+formSyncKhan.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const alunoId = alunoSyncKhanSelect.value;
+    const newKhanPoints = parseInt(khanPointsInput.value);
+
+    if (isNaN(newKhanPoints)) {
+        alert("Por favor, insira um valor válido.");
+        return;
+    }
+
+    try {
+        const alunoRef = alunosCollection.doc(alunoId);
+        const alunoDoc = await alunoRef.get();
+        const dados = alunoDoc.data();
+        const currentSystemPoints = dados.pontos;
+        const delta = newKhanPoints - currentSystemPoints;
+
+        if (delta === 0) {
+            alert("Os pontos já estão atualizados.");
+            return;
+        }
+
+        await alunoRef.update({
+            pontosAnteriores: currentSystemPoints,
+            pontos: firebase.firestore.FieldValue.increment(delta)
+        });
+
+        alert(`Pontos atualizados!\nSaldo anterior: ${currentSystemPoints}\nDiferença: ${delta}\nNovo saldo: ${newKhanPoints}`);
+        formSyncKhan.reset();
+    } catch (error) {
+        alert('Erro ao atualizar pontos: ' + error.message);
+    }
+});
+
+
 // Formulário de edição (para o professor adicionar pontos)
 const formEdicao = `
   <h2>Gerenciar Pontos</h2>
@@ -187,6 +227,7 @@ function atualizarLista() {
 
     updateSelect(alunoSelect);
     updateSelect(alunoEditarSelect);
+    updateSelect(alunoSyncKhanSelect); // Atualiza o select do sync Khan
 }
 
 // Carrega os dados ao iniciar, mas apenas após login

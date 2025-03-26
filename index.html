@@ -29,10 +29,10 @@
         <div class="navbar">
             <img src="Logotipo Edukhan 2024/SEM FUNDO/LOGOTIPO/LOGOTIPO 1.png" alt="Logo Edukhan" class="logo"
                 width="150px">
-                
+
         </div>
     </nav>
-    
+
     <div id="loginContainer" style="display: none; text-align: center; padding: 20px;">
         <h2>Acesso Restrito</h2>
         <input type="email" id="email" placeholder="Email do Professor" required>
@@ -81,6 +81,13 @@
             <select id="alunoSelect" required></select>
             <input type="number" id="valorPremio" placeholder="Valor do prêmio" required>
             <button type="submit">Registrar Compra</button>
+        </form>
+
+        <h2>Sincronizar Pontos Khan Academy</h2>
+        <form id="syncKhanPoints">
+            <select id="alunoSyncKhan" required></select>
+            <input type="number" id="khanPoints" placeholder="Pontos atuais na Khan Academy" required>
+            <button type="submit">Atualizar Pontos</button>
         </form>
 
         <h2>Lista de Prêmios</h2>
