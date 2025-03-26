@@ -8,6 +8,19 @@
   --amarelo: #f5cd50;
 }
 
+#tabelaAlunos th:nth-child(2),
+#tabelaAlunos td:nth-child(2) {
+    width: 200px;
+}
+
+#unidadeSelect {
+    padding: 10px;
+    margin: 10px 0;
+    border: 2px solid var(--azul-escuro);
+    border-radius: 5px;
+    font-family: 'Kode Mono', monospace;
+}
+
 body {
   font-family: "Kode Mono", monospace;
   margin: 0;

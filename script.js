@@ -1,6 +1,12 @@
 let user = null;
+let unidadeSelecionada = null; // Variável para armazenar a unidade filtrada
 
-// Função de login
+// Função para filtrar alunos por unidade
+function filtrarPorUnidade() {
+    unidadeSelecionada = document.getElementById('unidadeSelect').value;
+    monitorarAlunos();
+}
+
 function login() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
@@ -17,12 +23,11 @@ function login() {
         });
 }
 
-// Função de logout
 function logout() {
     firebase.auth().signOut().then(() => {
         user = null;
-        alunos = []; // Limpa a lista de alunos
-        tabelaAlunosBody.innerHTML = ''; // Limpa a tabela
+        alunos = [];
+        tabelaAlunosBody.innerHTML = '';
         alert('Logout realizado com sucesso!');
     }).catch((error) => {
         alert('Erro ao fazer logout: ' + error.message);
@@ -52,8 +57,6 @@ const formCadastro = document.getElementById('cadastroAluno');
 const formCompra = document.getElementById('compraPremio');
 const tabelaAlunosBody = document.querySelector('#tabelaAlunos tbody');
 const alunoSelect = document.getElementById('alunoSelect');
-
-// Sincronização com Khan Academy
 const formSyncKhan = document.getElementById('syncKhanPoints');
 const alunoSyncKhanSelect = document.getElementById('alunoSyncKhan');
 const khanPointsInput = document.getElementById('khanPoints');
@@ -92,7 +95,6 @@ formSyncKhan.addEventListener('submit', async (e) => {
     }
 });
 
-
 // Formulário de edição (para o professor adicionar pontos)
 const formEdicao = `
   <h2>Gerenciar Pontos</h2>
@@ -108,9 +110,13 @@ const formEditar = document.getElementById('editarPontos');
 const alunoEditarSelect = document.getElementById('alunoEditar');
 const novoValorPontosInput = document.getElementById('novoValorPontos');
 
-// Função para carregar e monitorar dados em tempo real
+// Monitoramento dos alunos com filtro de unidade (se definido)
 function monitorarAlunos() {
-    alunosCollection.onSnapshot((snapshot) => {
+    let query = alunosCollection;
+    if (unidadeSelecionada) {
+        query = query.where('unidade', '==', unidadeSelecionada);
+    }
+    query.onSnapshot((snapshot) => {
         alunos = snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
@@ -119,10 +125,11 @@ function monitorarAlunos() {
     });
 }
 
-// Cadastro de alunos
+// Cadastro de alunos (agora com o campo "unidade")
 formCadastro.addEventListener('submit', async (e) => {
     e.preventDefault();
     const nome = document.getElementById('nome').value.trim();
+    const unidade = document.getElementById('unidadeAluno').value;
     const pontos = parseInt(document.getElementById('pontos').value);
 
     if (alunos.some(aluno => aluno.nome.toLowerCase() === nome.toLowerCase())) {
@@ -133,8 +140,9 @@ formCadastro.addEventListener('submit', async (e) => {
     try {
         await alunosCollection.add({
             nome,
+            unidade,
             pontos,
-            pontosAnteriores: pontos, // Armazena os pontos iniciais
+            pontosAnteriores: pontos,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
         formCadastro.reset();
@@ -171,7 +179,6 @@ formCompra.addEventListener('submit', async (e) => {
 });
 
 // Adicionar pontos (para o professor)
-// Verifica se o valor informado é positivo para garantir adição
 formEditar.addEventListener('submit', async (e) => {
     e.preventDefault();
     const alunoId = alunoEditarSelect.value;
@@ -199,7 +206,7 @@ formEditar.addEventListener('submit', async (e) => {
     }
 });
 
-// Função para remover aluno
+// Remover aluno
 function removerAluno(alunoId) {
     if (confirm("Deseja realmente remover este aluno?")) {
         alunosCollection.doc(alunoId).delete()
@@ -208,11 +215,12 @@ function removerAluno(alunoId) {
     }
 }
 
-// Atualizar a tabela e os selects
+// Atualiza a tabela e os selects (incluindo a coluna de unidade)
 function atualizarLista() {
     tabelaAlunosBody.innerHTML = alunos.map(aluno => `
         <tr>
             <td>${aluno.nome}</td>
+            <td>${aluno.unidade || '-'}</td>
             <td>${aluno.pontosAnteriores || 0}</td>
             <td>${aluno.pontos}</td>
             <td style="text-align: center;"><button onclick="removerAluno('${aluno.id}')">Remover</button></td>
@@ -220,31 +228,32 @@ function atualizarLista() {
     `).join('');
 
     const updateSelect = (selectElement) => {
-        selectElement.innerHTML = alunos.map(aluno => `
+        let alunosFiltrados = alunos;
+        if (unidadeSelecionada) {
+            alunosFiltrados = alunos.filter(aluno => aluno.unidade === unidadeSelecionada);
+        }
+        selectElement.innerHTML = alunosFiltrados.map(aluno => `
             <option value="${aluno.id}">${aluno.nome}</option>
         `).join('');
     };
 
     updateSelect(alunoSelect);
     updateSelect(alunoEditarSelect);
-    updateSelect(alunoSyncKhanSelect); // Atualiza o select do sync Khan
+    updateSelect(alunoSyncKhanSelect);
 }
 
-// Carrega os dados ao iniciar, mas apenas após login
 window.addEventListener('load', () => {
     if (user) {
         monitorarAlunos();
     }
 });
 
-// Forçar logout ao sair/recarregar a página
 window.addEventListener('beforeunload', (event) => {
     if (user) {
         firebase.auth().signOut();
     }
 });
 
-// Configurar persistência de sessão como 'none'
 firebase.auth().setPersistence(firebase.auth.Auth.Persistence.NONE)
     .then(() => {
         console.log("Persistência de autenticação desativada");
