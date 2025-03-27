@@ -1,7 +1,6 @@
 let user = null;
-let unidadeSelecionada = null; // Variável para armazenar a unidade filtrada
+let unidadeSelecionada = null;
 
-// Função para filtrar alunos por unidade
 function filtrarPorUnidade() {
     unidadeSelecionada = document.getElementById('unidadeSelect').value;
     monitorarAlunos();
@@ -16,7 +15,7 @@ function login() {
             user = userCredential.user;
             document.getElementById('loginContainer').style.display = 'none';
             document.getElementById('content').style.display = 'block';
-            monitorarAlunos(); // Carrega os dados após login
+            monitorarAlunos();
         })
         .catch((error) => {
             document.getElementById('loginError').textContent = "Erro: " + error.message;
@@ -52,7 +51,6 @@ firebase.auth().signInAnonymously()
 let alunos = [];
 const alunosCollection = db.collection('alunos');
 
-// Elementos do DOM
 const formCadastro = document.getElementById('cadastroAluno');
 const formCompra = document.getElementById('compraPremio');
 const tabelaAlunosBody = document.querySelector('#tabelaAlunos tbody');
@@ -61,6 +59,7 @@ const formSyncKhan = document.getElementById('syncKhanPoints');
 const alunoSyncKhanSelect = document.getElementById('alunoSyncKhan');
 const khanPointsInput = document.getElementById('khanPoints');
 
+// Sincronização com Khan Academy
 formSyncKhan.addEventListener('submit', async (e) => {
     e.preventDefault();
     const alunoId = alunoSyncKhanSelect.value;
@@ -75,33 +74,27 @@ formSyncKhan.addEventListener('submit', async (e) => {
         const alunoRef = alunosCollection.doc(alunoId);
         const alunoDoc = await alunoRef.get();
         const dados = alunoDoc.data();
-        const currentSystemPoints = dados.pontos;
-        const delta = newKhanPoints - currentSystemPoints;
-
-        if (delta === 0) {
-            alert("Os pontos já estão atualizados.");
-            return;
-        }
+        const currentKhanPoints = dados.pontosUltimaAtualizacao || 0;
 
         await alunoRef.update({
-            pontosAnteriores: currentSystemPoints,
-            pontos: firebase.firestore.FieldValue.increment(delta)
+            pontosUltimaAtualizacao: newKhanPoints
         });
 
-        alert(`Pontos atualizados!\nSaldo anterior: ${currentSystemPoints}\nDiferença: ${delta}\nNovo saldo: ${newKhanPoints}`);
+        const saldoAtual = newKhanPoints - (dados.totalCompras || 0);
+        alert(`Pontos atualizados!\nÚltima atualização: ${newKhanPoints}\nSaldo atual: ${saldoAtual}`);
         formSyncKhan.reset();
     } catch (error) {
         alert('Erro ao atualizar pontos: ' + error.message);
     }
 });
 
-// Formulário de edição (para o professor adicionar pontos)
+// Formulário de atualização manual de pontos
 const formEdicao = `
-  <h2>Gerenciar Pontos</h2>
+  <h2>Atualizar Pontos Manualmente</h2>
   <form id="editarPontos">
     <select id="alunoEditar" required></select>
-    <input type="number" id="novoValorPontos" placeholder="Adicionar pontos" required>
-    <button type="submit">Adicionar Pontos</button>
+    <input type="number" id="novoValorPontos" placeholder="Nova pontuação" required>
+    <button type="submit">Atualizar Pontos</button>
   </form>
 `;
 document.querySelector('#tabelaAlunos').insertAdjacentHTML('afterend', formEdicao);
@@ -110,7 +103,6 @@ const formEditar = document.getElementById('editarPontos');
 const alunoEditarSelect = document.getElementById('alunoEditar');
 const novoValorPontosInput = document.getElementById('novoValorPontos');
 
-// Monitoramento dos alunos com filtro de unidade (se definido)
 function monitorarAlunos() {
     let query = alunosCollection;
     if (unidadeSelecionada) {
@@ -125,7 +117,6 @@ function monitorarAlunos() {
     });
 }
 
-// Cadastro de alunos (agora com o campo "unidade")
 formCadastro.addEventListener('submit', async (e) => {
     e.preventDefault();
     const nome = document.getElementById('nome').value.trim();
@@ -141,8 +132,8 @@ formCadastro.addEventListener('submit', async (e) => {
         await alunosCollection.add({
             nome,
             unidade,
-            pontos,
-            pontosAnteriores: pontos,
+            pontosUltimaAtualizacao: pontos,
+            totalCompras: 0,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
         formCadastro.reset();
@@ -151,7 +142,6 @@ formCadastro.addEventListener('submit', async (e) => {
     }
 });
 
-// Compra de prêmios (subtrai pontos)
 formCompra.addEventListener('submit', async (e) => {
     e.preventDefault();
     const alunoId = alunoSelect.value;
@@ -161,52 +151,47 @@ formCompra.addEventListener('submit', async (e) => {
         const alunoRef = alunosCollection.doc(alunoId);
         const alunoDoc = await alunoRef.get();
         const dados = alunoDoc.data();
+        const saldoAtual = (dados.pontosUltimaAtualizacao || 0) - (dados.totalCompras || 0);
 
-        if (dados.pontos >= valor) {
+        if (saldoAtual >= valor) {
             await alunoRef.update({
-                pontosAnteriores: dados.pontos,
-                pontos: firebase.firestore.FieldValue.increment(-valor)
+                totalCompras: firebase.firestore.FieldValue.increment(valor)
             });
             
-            alert(`Compra registrada!\nSaldo anterior: ${dados.pontos}\nValor descontado: ${valor}\nNovo saldo: ${dados.pontos - valor}`);
+            const novoSaldo = (dados.pontosUltimaAtualizacao || 0) - (dados.totalCompras + valor);
+            alert(`Compra registrada!\nSaldo anterior: ${saldoAtual}\nValor descontado: ${valor}\nNovo saldo: ${novoSaldo}`);
             formCompra.reset();
         } else {
-            alert('Pontos insuficientes!');
+            alert('Saldo insuficiente!');
         }
     } catch (error) {
         alert('Erro ao atualizar pontos: ' + error.message);
     }
 });
 
-// Adicionar pontos (para o professor)
 formEditar.addEventListener('submit', async (e) => {
     e.preventDefault();
     const alunoId = alunoEditarSelect.value;
-    let pontosAdicionar = parseInt(novoValorPontosInput.value);
+    const novaPontuacao = parseInt(novoValorPontosInput.value);
 
-    if (pontosAdicionar <= 0) {
-        alert("Informe um número positivo para adicionar pontos.");
+    if (isNaN(novaPontuacao)) {
+        alert("Por favor, insira um valor válido.");
         return;
     }
 
     try {
         const alunoRef = alunosCollection.doc(alunoId);
-        const alunoDoc = await alunoRef.get();
-        const dados = alunoDoc.data();
-        
         await alunoRef.update({
-            pontosAnteriores: dados.pontos,
-            pontos: firebase.firestore.FieldValue.increment(pontosAdicionar)
+            pontosUltimaAtualizacao: novaPontuacao
         });
         
-        alert(`Pontos adicionados!\nSaldo anterior: ${dados.pontos}\nValor adicionado: ${pontosAdicionar}\nNovo saldo: ${dados.pontos + pontosAdicionar}`);
+        alert(`Pontuação atualizada para ${novaPontuacao}!`);
         formEditar.reset();
     } catch (error) {
         alert('Erro ao atualizar pontos: ' + error.message);
     }
 });
 
-// Remover aluno
 function removerAluno(alunoId) {
     if (confirm("Deseja realmente remover este aluno?")) {
         alunosCollection.doc(alunoId).delete()
@@ -215,14 +200,14 @@ function removerAluno(alunoId) {
     }
 }
 
-// Atualiza a tabela e os selects (incluindo a coluna de unidade)
 function atualizarLista() {
     tabelaAlunosBody.innerHTML = alunos.map(aluno => `
         <tr>
             <td>${aluno.nome}</td>
             <td>${aluno.unidade || '-'}</td>
-            <td>${aluno.pontosAnteriores || 0}</td>
-            <td>${aluno.pontos}</td>
+            <td>${aluno.pontosUltimaAtualizacao || 0}</td>
+            <td>${aluno.totalCompras || 0}</td>
+            <td>${(aluno.pontosUltimaAtualizacao || 0) - (aluno.totalCompras || 0)}</td>
             <td style="text-align: center;"><button onclick="removerAluno('${aluno.id}')">Remover</button></td>
         </tr>
     `).join('');
@@ -243,21 +228,13 @@ function atualizarLista() {
 }
 
 window.addEventListener('load', () => {
-    if (user) {
-        monitorarAlunos();
-    }
+    if (user) monitorarAlunos();
 });
 
-window.addEventListener('beforeunload', (event) => {
-    if (user) {
-        firebase.auth().signOut();
-    }
+window.addEventListener('beforeunload', () => {
+    if (user) firebase.auth().signOut();
 });
 
 firebase.auth().setPersistence(firebase.auth.Auth.Persistence.NONE)
-    .then(() => {
-        console.log("Persistência de autenticação desativada");
-    })
-    .catch((error) => {
-        console.error("Erro ao configurar persistência:", error);
-    });
+    .then(() => console.log("Persistência de autenticação desativada"))
+    .catch((error) => console.error("Erro ao configurar persistência:", error));
