@@ -45,17 +45,20 @@
             Sair da Conta
         </button>
         <h1>Banco de Pontos</h1>
-        <p>O Banco de Pontos é uma plataforma que permite aos professores cadastrar alunos, registrar pontuações por atividades e gerenciar a troca de pontos por prêmios. O sistema torna o aprendizado mais dinâmico e motivador, incentivando os estudantes. Com uma interface simples e intuitiva, os professores podem acompanhar o saldo de pontos em tempo real e registrar a troca por prêmios de forma rápida e prática.</p>
+        <p>O Banco de Pontos é uma plataforma que permite aos professores cadastrar alunos, registrar pontuações por
+            atividades e gerenciar a troca de pontos por prêmios. O sistema torna o aprendizado mais dinâmico e
+            motivador, incentivando os estudantes. Com uma interface simples e intuitiva, os professores podem
+            acompanhar o saldo de pontos em tempo real e registrar a troca por prêmios de forma rápida e prática.</p>
         <h2>Selecionar Unidade</h2>
         <select id="unidadeSelect" onchange="filtrarPorUnidade()">
             <option value="">Todas as Unidades</option>
             <option value="Associação Viver">Associação Viver</option>
             <option value="Casa de Ismael">Casa de Ismael</option>
-<option value="Multiplicando Sorrisos">Multiplicando Sorrisos</option>
-<option value="Unire">Unire</option>
-<option value="Uism">Uism</option>
-<option value="SemiMetropolitana">SemiMetropolitana</option>
-<option value="Casa GOG">Casa GOG</option>
+            <option value="Multiplicando Sorrisos">Multiplicando Sorrisos</option>
+            <option value="Unire">Unire</option>
+            <option value="Uism">Uism</option>
+            <option value="SemiMetropolitana">SemiMetropolitana</option>
+            <option value="Casa GOG">Casa GOG</option>
             <!-- Adicione outras unidades conforme necessário -->
         </select>
         <h2>Cadastro de Alunos</h2>
@@ -66,11 +69,11 @@
                 <option value="">Selecione a Unidade</option>
                 <option value="Associação Viver">Associação Viver</option>
                 <option value="Casa de Ismael">Casa de Ismael</option>
-<option value="Multiplicando Sorrisos">Multiplicando Sorrisos</option>
-<option value="Unire">Unire</option>
-<option value="Uism">Uism</option>
-<option value="SemiMetropolitana">SemiMetropolitana</option>
-<option value="Casa GOG">Casa GOG</option>
+                <option value="Multiplicando Sorrisos">Multiplicando Sorrisos</option>
+                <option value="Unire">Unire</option>
+                <option value="Uism">Uism</option>
+                <option value="SemiMetropolitana">SemiMetropolitana</option>
+                <option value="Casa GOG">Casa GOG</option>
             </select>
             <input type="number" id="pontos" placeholder="Pontos iniciais" required>
             <button type="submit">Cadastrar</button>
@@ -100,13 +103,7 @@
             <button type="submit">Registrar Compra</button>
         </form>
 
-        <h2>Sincronizar Pontos Khan Academy</h2>
-        <form id="syncKhanPoints">
-            <select id="alunoSyncKhan" required></select>
-            <input type="number" id="khanPoints" placeholder="Pontos atuais na Khan Academy" required>
-            <button type="submit">Atualizar Pontos</button>
-        </form>
-
+        
         <h2>Lista de Prêmios</h2>
         <table id="tabelaPremios">
             <thead>
@@ -188,7 +185,7 @@
         </table>
     </div>
     <footer>
-        <p>© 2025 Edukhan 
+        <p>© 2025 Edukhan
             <span class="version-badge">v2.0 - Saldo Inteligente</span>
         </p>
     </footer>
